@@ -11,21 +11,12 @@ public partial class Index
     [Inject]
     private GameStateService GameStateService { get; set; } = null!;
 
-    private NewGameForm _newGameForm = new();
     private AnswerSubmission _answerSubmission = new();
 
     protected override async Task OnInitializedAsync()
     {
         await GameStateService.InitializeAsync();
         await base.OnInitializedAsync();
-    }
-
-    private async Task OnNewGame()
-    {
-        if (_newGameForm.GameCode is not null)
-        {
-            await GameStateService.StartNewGameAsync(_newGameForm.GameCode);
-        }
     }
 
     private async Task OnAnswerSubmission()

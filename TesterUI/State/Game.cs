@@ -2,13 +2,14 @@
 
 public class Game
 {
-    public Game(string gameCode)
+    public Game(string gameCode, DateTime startTime)
     {
         GameCode = gameCode;
+        StartTime = startTime;
     }
 
     public string Id { get; set; } = Guid.NewGuid().ToString();
-    public DateTime StartTime { get; private set; } = DateTime.Now;
+    public DateTime StartTime { get; private set; }
     public string GameCode { get; set; }
     public List<Answer> Answers { get; set; } = new();
     public List<string> UsedCountryCodes => Answers.Select(q => q.CorrectAnswerCountryCode).ToList();

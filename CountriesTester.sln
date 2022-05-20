@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JsonFileGenerator", "JsonFi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "Common\Common.csproj", "{11F20202-F233-4737-8CAF-13D37607B22F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageFilesMatcher", "ImageFilesMatcher\ImageFilesMatcher.csproj", "{C0522315-7276-4661-A8E7-7AD248490910}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageFilesMatcher", "ImageFilesMatcher\ImageFilesMatcher.csproj", "{C0522315-7276-4661-A8E7-7AD248490910}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

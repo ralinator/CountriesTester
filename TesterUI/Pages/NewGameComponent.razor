@@ -1,0 +1,25 @@
+﻿@if (GameStateService.GameData is not null)
+{
+    <div class="row">
+        <div class="col-md">
+            <EditForm Model="_newGameForm" OnValidSubmit="OnNewGame"
+                  class="row row-cols-lg-auto g-3 align-items-center">
+                <div class="col-12">
+                    <label class="visually-hidden" for="newGame">Start a new game</label>
+                    <InputSelect @bind-Value="_newGameForm.GameCode" class="form-select" id="newGame">
+                        <option selected>Choose...</option>
+                        <option value="all">All (@GameStateService.GameData.Countries.Count countries)</option>
+                        @foreach (var continent in GameStateService.GameData.Continents)
+                        {
+                        <option value="@continent.Code">@continent.Name (@GameStateService.GameData.Countries.Where(q => q.Continent == continent.Code).Count() countries)</option>
+                        }
+                </InputSelect>
+            </div>
+
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Start new game</button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+}

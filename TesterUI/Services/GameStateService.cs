@@ -44,7 +44,7 @@ public class GameStateService
 
     public async Task StartNewGameAsync(string gameCode)
     {
-        var newGame = new Game(gameCode);
+        var newGame = new Game(gameCode, DateTime.Now);
         if (_state is null)
         {
             _state = new(newGame);
@@ -131,5 +131,15 @@ public class GameStateService
             _state.GameHistory.RemoveAll(q => q.Id == id);
             await _gameStateStoreService.SaveStateAsync(_state);
         }
+    }
+
+    public string GetGameNameFromCode(string gameCode)
+    {
+        if (GameData.Continents.Any(q => q.Code == gameCode) == false)
+        {
+            return "All";
+        }
+        var continent = GameData.Continents.Single(q => q.Code == gameCode);
+        return continent.Name;
     }
 }
