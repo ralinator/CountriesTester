@@ -12,10 +12,10 @@
                     <label class="visually-hidden" for="newGame">Start a new game</label>
                     <InputSelect @bind-Value="_newGameForm.GameCode" class="form-select" id="newGame">
                         <option selected>Choose...</option>
-                        <option value="all">All</option>
+                        <option value="all">All (@GameStateService.GameData.Countries.Count countries)</option>
                         @foreach (var continent in GameStateService.GameData.Continents)
                         {
-                        <option value="@continent.Code">@continent.Name</option>
+                        <option value="@continent.Code">@continent.Name (@GameStateService.GameData.Countries.Where(q => q.Continent == continent.Code).Count() countries)</option>
                         }
                 </InputSelect>
             </div>
