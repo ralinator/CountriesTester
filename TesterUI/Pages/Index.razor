@@ -1,0 +1,146 @@
+﻿@page "/"
+@using Common
+@using TesterUI.Services
+
+@if (GameStateService.GameData is not null)
+{
+    <div class="row">
+        <div class="col-md">
+            <EditForm Model="_newGameForm" OnValidSubmit="OnNewGame"
+                  class="row row-cols-lg-auto g-3 align-items-center">
+                <div class="col-12">
+                    <label class="visually-hidden" for="newGame">Start a new game</label>
+                    <InputSelect @bind-Value="_newGameForm.GameCode" class="form-select" id="newGame">
+                        <option selected>Choose...</option>
+                        <option value="all">All</option>
+                        @foreach (var continent in GameStateService.GameData.Continents)
+                        {
+                        <option value="@continent.Code">@continent.Name</option>
+                        }
+                </InputSelect>
+            </div>
+
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Start new game</button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+}
+
+
+@if (GameStateService.State is not null && GameStateService.GameData is not null)
+{
+    <div class="row mb-5">
+        <div class="col-md">
+            <div style="height: 50vh;background-image: @($"url(\"/countryimages/{GameStateService.State.CurrentGame.CurrentQuestionCountryCode}.svg\")"); background-size:contain;background-repeat:no-repeat">
+            </div>
+        </div>
+    </div>
+    <div class="row mb-1">
+        <div class="col-md-6">
+            @if (GameStateService.State.CurrentGame.IsCurrentQuestionAnswered == false)
+            {
+                <EditForm Model="_answerSubmission" OnValidSubmit="OnAnswerSubmission">
+                    <RadzenDropDown AllowClear="true" TValue="string" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowFiltering="true" Class="w-100"
+                            Placeholder="Select..." Data="GameStateService.GameData.Countries.OrderBy(q => q.Name)" ValueProperty="Code" TextProperty="Name"
+                            @bind-Value="_answerSubmission.CountryCode" />
+                    <button class="btn btn-primary btn-lg" type="submit">Check Answer</button>
+                </EditForm>
+            }
+            @if (GameStateService.State.CurrentGame.IsCurrentQuestionAnswered == true)
+            {
+                @if (GameStateService.State.CurrentGame.IsCurrentQuestionAnsweredAndCorrect == true)
+                {
+                    <div class="alert alert-success" role="alert">
+                        @GameStateService.CurrentQuestionCountryName (@GameStateService.CurrentQuestionContinentName) was the correct answer!
+                    </div>
+                }
+                @if (GameStateService.State.CurrentGame.CompletedTime.HasValue)
+                {
+                    <div class="alert alert-success" role="alert">
+                        <p><strong>Finished!</strong> Completed at @GameStateService.State.CurrentGame.CompletedTime.Value</p>
+                    </div>
+                }
+                @if (GameStateService.State.CurrentGame.IsCurrentQuestionAnsweredAndCorrect == false)
+                {
+                    <div class="alert alert-danger" role="alert">
+                        @GameStateService.LastAnswerCountryName (@GameStateService.LastAnswerContinentName) was incorrect, the correct answer was
+                        @GameStateService.CurrentQuestionCountryName (@GameStateService.CurrentQuestionContinentName)
+                    </div>
+                }
+            }
+            <p style="font-size:3rem">Score: @GameStateService.State.CurrentGame.Score<span>/</span>@GameStateService.State.CurrentGame.Answers.Count</p>
+            <p style="font-size:3rem">Continent Score: @GameStateService.State.CurrentGame.ContinentScore<span>/</span>@GameStateService.State.CurrentGame.Answers.Count</p>
+        </div>
+        <div class="col-md">
+            @if (GameStateService.State.CurrentGame.IsCurrentQuestionAnswered == true && GameStateService.State.CurrentGame.CompletedTime.HasValue == false)
+            {
+                <button class="btn btn-secondary btn-lg" @onclick="() => GameStateService.SetNewQuestion()">Next Country</button>
+            }
+        </div>
+    </div>
+    <div class="row mb-2">
+        <div class="col-md">
+            <h3>Answers</h3>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Correct Answer</th>
+                        <th>Given Answer</th>
+                        <th>Date/Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var answer in GameStateService.State.CurrentGame.Answers)
+                    {
+                        <tr class="@(answer.IsCorrectAnswer ? "table-success" : "table-danger")">
+                            <td>
+                                @GameStateService.GameData.Countries.Single(q => q.Code == answer.CorrectAnswerCountryCode).Name
+                                (@GameStateService.GameData.Continents.Single(q => q.Code == answer.CorrectAnswerContinentCode).Name)
+                            </td>
+                            <td>
+                                @GameStateService.GameData.Countries.Single(q => q.Code == answer.GivenAnswerCountryCode).Name
+                                (@GameStateService.GameData.Continents.Single(q => q.Code == answer.GivenAnswerContinentCode).Name)
+                            </td>
+                            <td>@answer.DateTime</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row mb-2">
+        <div class="col-md">
+            <h3>Game History</h3>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Date/Time Started</th>
+                        <th>Date/Time Last Played</th>
+                        <th>Score</th>
+                        <th>Continent Score</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var game in GameStateService.State.GameHistory)
+                    {
+                        <tr class="@(game.CompletedTime.HasValue ? "table-success" : "table-info")">
+                            <td>@game.StartTime</td>
+                            <td>@(game.Answers.Any() ? game.Answers.Max(q => q.DateTime) : "")</td>
+                            <td>@game.Score/@game.Answers.Count</td>
+                            <td>@game.ContinentScore/@game.Answers.Count</td>
+                            <td>
+                                <button class="btn btn-primary mr-1" type="button" @onclick="() => ResumeGame(game.Id)">
+                                    @(game.CompletedTime.HasValue ? "View" : "Resume")
+                                </button>
+                                <button class="btn btn-danger" type="button" @onclick="() => DeleteGame(game.Id)">Delete</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
