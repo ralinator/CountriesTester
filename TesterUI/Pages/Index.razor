@@ -13,21 +13,21 @@
     <div class="card mb-2">
         <h3 class="card-header">Current Game - @GameStateService.GetGameNameFromCode(GameStateService.State.CurrentGame.GameCode)</h3>
         <div class="card-body">
-            <div class="row mb-5">
-                <div class="col-md">
-                    <div style="height: 50vh;background-image: @($"url(\"/countryimages/{GameStateService.State.CurrentGame.CurrentQuestionCountryCode}.svg\")"); background-size:contain;background-repeat:no-repeat">
-                    </div>
-                </div>
-            </div>
-            <div class="row mb-1">
+            <div class="row mb-2">
                 <div class="col-md">
                     @if (GameStateService.State.CurrentGame.IsCurrentQuestionAnswered == false)
                     {
                         <EditForm Model="_answerSubmission" OnValidSubmit="OnAnswerSubmission" class="row row-cols-lg-auto g-3 align-items-center">
                             <div class="col-12">
-                                <RadzenDropDown AllowClear="true" TValue="string" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowFiltering="true" Class="w-100"
-                                        Placeholder="Select..." Data="GameStateService.GameData.Countries.OrderBy(q => q.Name)" ValueProperty="Code" TextProperty="Name"
-                                        @bind-Value="_answerSubmission.CountryCode" />
+                                <RadzenDropDownDataGrid TValue="string" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowFiltering="true" AllowClear="true"
+                                                Style="width: 100%" AllowColumnResize="true" AllowFilteringByAllStringColumns="true"
+                                                Data="GameStateService.GameData.Countries.OrderBy(q => q.Name)" ValueProperty="Code" TextProperty="Name"
+                                                @bind-Value="_answerSubmission.CountryCode" PageSize="10" Responsive="false">
+                                    <Columns>
+                                        <RadzenDropDownDataGridColumn Property="Name" Title="Name" />
+                                        <RadzenDropDownDataGridColumn Property="AlternativeName" Title="Alternative" />
+                                    </Columns>
+                                </RadzenDropDownDataGrid>
                             </div>
                             <div class="col-12">
                                 @if (GameStateService.State.CurrentGame.IsCurrentQuestionAnswered == false && GameStateService.State.CurrentGame.CompletedTime.HasValue == false)
@@ -37,6 +37,16 @@
                             </div>
                         </EditForm>
                     }
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-md">
+                    <div style="height: 50vh;background-image: @($"url(\"/countryimages/{GameStateService.State.CurrentGame.CurrentQuestionCountryCode}.svg\")"); background-size:contain;background-repeat:no-repeat">
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-1">
+                <div class="col-md">
                     @if (GameStateService.State.CurrentGame.IsCurrentQuestionAnswered == true && GameStateService.State.CurrentGame.CompletedTime.HasValue == false)
                     {
                         <button class="btn btn-secondary btn-lg mb-1" @onclick="() => GameStateService.SetNewQuestion()" type="button">Next Country</button>
