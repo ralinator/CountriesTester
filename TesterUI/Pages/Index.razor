@@ -19,15 +19,16 @@
                     {
                         <EditForm Model="_answerSubmission" OnValidSubmit="OnAnswerSubmission" class="row row-cols-lg-auto g-3 align-items-center">
                             <div class="col-12">
-                                <RadzenDropDownDataGrid TValue="string" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowFiltering="true" AllowClear="true"
-                                                Style="width: 100%" AllowColumnResize="true" AllowFilteringByAllStringColumns="true"
-                                                Data="GameStateService.GameData.Countries.OrderBy(q => q.Name)" ValueProperty="Code" TextProperty="Name"
-                                                @bind-Value="_answerSubmission.CountryCode" PageSize="10" Responsive="false">
-                                    <Columns>
-                                        <RadzenDropDownDataGridColumn Property="Name" Title="Name" />
-                                        <RadzenDropDownDataGridColumn Property="AlternativeName" Title="Alternative" />
-                                    </Columns>
-                                </RadzenDropDownDataGrid>
+                                <RadzenDropDown Style="width: 100%" LoadData="FilterCountriesList" Data="_countriesList" ValueProperty="Code" TValue="string"
+                                        AllowClear="true" AllowFiltering="true" @bind-Value="_answerSubmission.CountryCode">
+                                    <Template Context="country">
+                                        <span>@((country as Country)!.Name)</span>
+                                        @if (!string.IsNullOrEmpty((country as Country)!.AlternativeName))
+                                        {
+                                            <span>&nbsp;(@((country as Country)!.AlternativeName))</span>
+                                        }
+                                    </Template>
+                                </RadzenDropDown>
                             </div>
                             <div class="col-12">
                                 @if (GameStateService.State.CurrentGame.IsCurrentQuestionAnswered == false && GameStateService.State.CurrentGame.CompletedTime.HasValue == false)
